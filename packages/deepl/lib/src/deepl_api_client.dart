@@ -56,7 +56,7 @@ class DeeplApiClient {
   }) async {
     final configToUse = config ?? this.config;
 
-    final queryParameters = {
+    final queryParameters = <String, String>{
       'auth_key': configToUse.authKey,
       'text': jsonEncode(texts),
       'target_lang': targetLanguage,
@@ -96,9 +96,9 @@ class DeeplApiClient {
   }) async {
     final configToUse = config ?? this.config;
 
-    final queryParameters = {
+    final queryParameters = <String, String>{
       'auth_key': configToUse.authKey,
-      'type': type.name,
+      'type': type == DeeplLanguageType.source ? 'source' : 'target',
     };
 
     final response = await http.get(
@@ -122,7 +122,7 @@ class DeeplApiClient {
   }) async {
     final configToUse = config ?? this.config;
 
-    final queryParameters = {
+    final queryParameters = <String, String>{
       'auth_key': configToUse.authKey,
     };
 

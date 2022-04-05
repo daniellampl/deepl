@@ -1,0 +1,37 @@
+name: deepl
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/deepl.yaml"
+      - "packages/deepl/lib/**"
+      - "packages/deepl/test/**"
+
+jobs:
+  build:
+    defaults:
+      run:
+        working-directory: packages/deepl
+    runs-on: ubuntu-latest
+    container:
+      image: google/dart:2.12
+    steps:
+      - name: 📚 Git Checkout
+        uses: actions/checkout@v2
+
+      - name: 📦 Install Dependencies
+        run: dart pub get
+
+      - name: ✨ Check Formatting
+        run: dart format --set-exit-if-changed .
+
+      - name: 🕵️ Analyze
+        run: dart analyze --fatal-infos --fatal-warnings lib
+
+      - name: 🧪 Run Tests
+        run: |
+          pub global activate test_coverage
+          export PATH=$PATH:$HOME/.pub-cache/bin
+          test_coverage
