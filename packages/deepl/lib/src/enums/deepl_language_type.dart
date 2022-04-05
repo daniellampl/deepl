@@ -1,0 +1,8 @@
+///
+enum DeeplLanguageType {
+  ///
+  target,
+
+  ///
+  source,
+}
