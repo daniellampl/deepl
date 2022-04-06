@@ -3,7 +3,7 @@ import 'package:json_annotation/json_annotation.dart';
 part 'deepl_language.g.dart';
 
 /// {@template deepl_language}
-///
+/// A language supported by Deepl for either translating a text into or from.
 /// {@endtemplate}
 @JsonSerializable(createToJson: false)
 class DeeplLanguage {
@@ -14,9 +14,7 @@ class DeeplLanguage {
     required this.supportsFormality,
   });
 
-  /// {@template deepl_translation.fromJson}
-  ///
-  /// {@endTemplate}
+  /// {@macro deepl_language}
   factory DeeplLanguage.fromJson(Map<String, dynamic> json) =>
       _$DeeplLanguageFromJson(json);
 
@@ -26,13 +24,12 @@ class DeeplLanguage {
   /// The name of the langauge in english.
   final String name;
 
-  /// Whether the target language supports formalities or not. This is online
+  /// Whether the target language supports formalities or not. This is only
   /// included for target languages.
   ///
-  /// Returns `true`, if the target language supports formalities, otherwise
-  /// `false`.
+  /// Is `true` if the target language supports formalities, otherwise `false`.
   ///
-  /// Returns `null` if the language is a source language.
+  /// Is `null` if the language is a source language.
   @JsonKey(name: 'supports_formality')
   final bool? supportsFormality;
 }

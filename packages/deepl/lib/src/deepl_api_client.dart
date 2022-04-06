@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:deepl/src/enums/enums.dart';
 import 'package:deepl/src/models/models.dart';
@@ -9,12 +10,18 @@ import 'package:http/http.dart' as http;
 /// {@endtemplate}
 class DeeplApiClient {
   /// {@macro deepl_client}
-  const DeeplApiClient({
-    required this.config,
-  });
+  DeeplApiClient({
+    this.config,
+    http.Client? httpClient,
+  }) : httpClient = httpClient ?? http.Client();
 
   /// {@macro deepl_config}
-  final DeeplConfig config;
+  final DeeplConfig? config;
+
+  /// {@template deepl_client.http_client}
+  ///
+  /// {@endtemplate}
+  final http.Client httpClient;
 
   /// {@template deepl_client.translate}
   /// Translates the given [text] to the given [targetLanguage].
@@ -54,10 +61,7 @@ class DeeplApiClient {
     String? sourceLanguage,
     DeeplConfig? config,
   }) async {
-    final configToUse = config ?? this.config;
-
     final queryParameters = <String, String>{
-      'auth_key': configToUse.authKey,
       'text': jsonEncode(texts),
       'target_lang': targetLanguage,
     };
@@ -66,8 +70,10 @@ class DeeplApiClient {
       queryParameters['source_lang'] = sourceLanguage;
     }
 
-    final response = await http.post(
-      Uri.https(_getAutority(configToUse), '/v2/translate', queryParameters),
+    final response = await _makeRequest(
+      path: '/v2/translate',
+      queryParameters: queryParameters,
+      config: config,
     );
 
     final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
@@ -94,15 +100,12 @@ class DeeplApiClient {
     required DeeplLanguageType type,
     DeeplConfig? config,
   }) async {
-    final configToUse = config ?? this.config;
-
-    final queryParameters = <String, String>{
-      'auth_key': configToUse.authKey,
-      'type': type == DeeplLanguageType.source ? 'source' : 'target',
-    };
-
-    final response = await http.get(
-      Uri.https(_getAutority(configToUse), '/v2/languages', queryParameters),
+    final response = await _makeRequest(
+      path: '/v2/languages',
+      queryParameters: <String, String>{
+        'type': type == DeeplLanguageType.source ? 'source' : 'target',
+      },
+      config: config,
     );
 
     final decodedResponse = jsonDecode(response.body) as List<dynamic>;
@@ -120,18 +123,42 @@ class DeeplApiClient {
   Future<DeeplUsage> getUsage({
     DeeplConfig? config,
   }) async {
-    final configToUse = config ?? this.config;
-
-    final queryParameters = <String, String>{
-      'auth_key': configToUse.authKey,
-    };
-
-    final response = await http.get(
-      Uri.https(_getAutority(configToUse), '/v2/usage', queryParameters),
+    final response = await _makeRequest(
+      path: '/v2/usage',
+      config: config,
     );
 
     final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
     return DeeplUsage.fromJson(decodedResponse);
+  }
+
+  /// Excecutes the request against the Deepl endpoint with the given [path].
+  ///
+  /// The request gets either executed with the [DeeplApiClient]'s [config] (if
+  /// available) or with the given request specific [config]. One of both must
+  /// be given.
+  Future<http.Response> _makeRequest({
+    required String path,
+    Map<String, String>? queryParameters,
+    DeeplConfig? config,
+  }) async {
+    assert(
+      this.config != null || config != null,
+      'Either the config of the DeeplApiClient instance or the request '
+      'specific config must not be null!',
+    );
+
+    final configToUse = config ?? this.config!;
+
+    // all Deepl endpoints are available as get and post operation, post is the
+    // recommended operation though.
+    return httpClient.post(
+      Uri.https(_getAutority(configToUse), path, queryParameters),
+      headers: {
+        HttpHeaders.authorizationHeader:
+            'DeepL-Auth-Key ${configToUse.authKey}',
+      },
+    );
   }
 
   /// Returns the Deepl authority for the given [config].

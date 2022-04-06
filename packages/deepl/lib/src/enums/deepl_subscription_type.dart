@@ -1,10 +1,10 @@
 /// {@template deepl_subscription_type}
-/// The Deepl API subscription type.
+/// The type of a Deepl subscription.
 /// {@endtemplate}
 enum DeeplSubscriptionType {
-  /// The free Deepl API subscription plan.
+  /// The free suscription plan.
   free,
 
-  /// The Pro Deepl API subscription plan.
+  /// The paid pro subscription plan.
   pro,
 }

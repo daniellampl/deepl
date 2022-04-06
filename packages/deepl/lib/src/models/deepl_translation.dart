@@ -3,7 +3,7 @@ import 'package:json_annotation/json_annotation.dart';
 part 'deepl_translation.g.dart';
 
 /// {@template deepl_translation}
-/// 
+/// A translation result a specifc text got translated to by deepl.
 /// {@endtemplate}
 @JsonSerializable(createToJson: false)
 class DeeplTranslation {

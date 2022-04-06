@@ -3,7 +3,7 @@ import 'package:json_annotation/json_annotation.dart';
 part 'deepl_usage.g.dart';
 
 /// {@template deepl_usage}
-/// Represents the usage information of a specific Deepl user.
+/// The usage information of a specific Deepl user.
 /// {@endtemplate}
 @JsonSerializable(createToJson: false)
 class DeeplUsage {
